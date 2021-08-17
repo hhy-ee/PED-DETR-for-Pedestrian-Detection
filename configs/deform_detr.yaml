@@ -5,6 +5,6 @@ MODEL:
     NUM_CLASSES: 80
     NUM_QUERIES: 300
     DENSE_QUERY: False
-    RECTIFIED_ATTENTION: False
+    RECTIFIED_ATTENTION: True
 
-OUTPUT_DIR: ./experiments_coco/baseline_coco
+OUTPUT_DIR: "./datasets/train_model/crowdhuman/deform_detr_baseline"

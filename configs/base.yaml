@@ -1,7 +1,7 @@
 MODEL:
   DEVICE: "cuda"
   META_ARCHITECTURE: "DQRF_DETR"
-  WEIGHTS: "R-50.pkl"
+  WEIGHTS: "./datasets/pretrain_model/R-50.pkl"
   PIXEL_MEAN: [123.675, 116.280, 103.530]
   PIXEL_STD: [58.395, 57.120, 57.375] #[1.0, 1.0, 1.0] #std has been absorbed into its conv1 weights, so the std needs to be set 1. (for MSRA models, but we are using pytorch pretraining)
   BACKBONE:
@@ -14,7 +14,7 @@ MODEL:
     OUT_FEATURES: ["res3", "res4", "res5"]
 
 SOLVER:
-  IMS_PER_BATCH: 24
+  IMS_PER_BATCH: 2
   BASE_LR: 0.0002
   STEPS: (197120,) # 118287 // 24 * 40
   GAMMA: 0.1
@@ -55,7 +55,7 @@ DATALOADER:
 SEED: 42
 
 DATASETS:
-  TRAIN: ("coco_2017_train",)
-  TEST:  ("coco_2017_val",)
+  TRAIN: ("crowdhuman_train",)
+  TEST:  ("crowdhuman_val",)
 
 VERSION: 2

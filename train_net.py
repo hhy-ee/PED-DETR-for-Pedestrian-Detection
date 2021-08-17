@@ -9,6 +9,7 @@
 import contextlib
 import logging
 import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import time
 from typing import Any, Dict, List, Set
 import numpy as np
@@ -28,7 +29,6 @@ from detectron2.engine import DefaultTrainer, default_argument_parser, default_s
 from detectron2.evaluation import (
     COCOEvaluator, DatasetEvaluator
 )
-from detectron2.solver.build import maybe_add_gradient_clipping
 from detectron2.utils.events import get_event_storage, JSONWriter, TensorboardXWriter
 
 from dqrf import add_dqrf_config, add_dataset_path
@@ -295,9 +295,9 @@ def setup(args):
         ch_train = get_crowdhuman_dicts(cfg.CH_PATH.ANNOT_PATH_TRAIN, cfg.CH_PATH.IMG_PATH_TRAIN)
         ch_val = get_crowdhuman_dicts(cfg.CH_PATH.ANNOT_PATH_VAL, cfg.CH_PATH.IMG_PATH_VAL)
         DatasetCatalog.register(cfg.DATASETS.TRAIN[0], ch_train)
-        MetadataCatalog.get(cfg.DATASETS.TRAIN[0]).set(thing_classes=["Background", "Pedestrian"])
+        MetadataCatalog.get(cfg.DATASETS.TRAIN[0]).set(thing_classes=["Background", "person"])
         DatasetCatalog.register(cfg.DATASETS.TEST[0], ch_val)
-        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["Background", "Pedestrian"])
+        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["Background", "person"])
         MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(json_file=cfg.CH_PATH.ANNOT_PATH_VAL)
         MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(gt_dir=cfg.CH_PATH.IMG_PATH_VAL)
     cfg.freeze()
@@ -322,7 +322,9 @@ def main(args):
 if __name__ == "__main__":
 
     args = default_argument_parser().parse_args()
-    
+    args.dist_url = 'tcp://127.0.0.1:50151'
+    args.config_file = 'configs/deform_detr.yaml'
+
     print("Command Line Args:", args)
     """
     A torch process group which only includes processes that on the same machine as the current process.

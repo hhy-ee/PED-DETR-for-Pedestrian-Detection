@@ -105,7 +105,6 @@ class SetCriterion(nn.Module):
 
         target_classes[idx] = target_classes_o
         ignore_idx = self._get_tgt_permutation_idx(indices)
-
         loss_ce = sigmoid_focal_loss(src_logits, target_classes.unsqueeze(-1).float(), num_boxes, alpha=self.focal_alpha, gamma=self.gammma, ignore=ignore_idx) * src_logits.shape[1]
 
         losses = {'loss_ce': loss_ce}
@@ -211,7 +210,6 @@ class SetCriterion(nn.Module):
             'labels': self.loss_labels,
             'boxes': self.loss_boxes,
             'vboxes': self.loss_boxes_v,
-            'contrastive': self.loss_contrastive
         }
         assert loss in loss_map, f'do you really want to compute {loss} loss?'
         return loss_map[loss](outputs, targets, indices, num_boxes)
