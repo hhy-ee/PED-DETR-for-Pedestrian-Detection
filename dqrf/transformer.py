@@ -7,7 +7,7 @@
 # ------------------------------------------------------------------------
 from typing import Optional
 from dqrf.ops.functions.local_attn import MultiHeadAttention
-from dqrf.ops.functions.ms_deform_attn import SamplingAttention_RA, SamplingEncAttention, SamplingAttention_dec
+from dqrf.ops.functions.ms_deform_attn import SamplingAttention_RA, SamplingEncAttention
 import torch
 from torch import nn, Tensor
 from torch.nn.init import xavier_uniform_, constant_, normal_
@@ -83,7 +83,7 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
         for m in self.modules():
-            if isinstance(m, (SamplingAttention_RA, SamplingEncAttention, SamplingAttention_dec)):
+            if isinstance(m, (SamplingAttention_RA, SamplingEncAttention)):
                 m._reset_parameters()
 
 
@@ -313,9 +313,6 @@ class TransformerDecoderLayer(nn.Module):
         if rectified_attention:
             self.multihead_attn = SamplingAttention_RA(d_model, dec_sampling_points=dec_sampling_points,
                                                     num_feature_levels=num_feature_levels)
-        else:
-            self.multihead_attn = SamplingAttention_dec(d_model, dec_sampling_points=dec_sampling_points,
-                                                   num_feature_levels=num_feature_levels)
 
 
 

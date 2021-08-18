@@ -229,9 +229,11 @@ def build_detection_val_loader(cfg, dataset_name, total_batch_size,  mapper=None
         mapper = DatasetMapper(cfg, True)
     dataset = MapDataset(dataset, mapper)
 
-    # sampler = InferenceSampler(len(dataset))
-    sampler = DistributedSampler(dataset, shuffle=False)
-
+    if world_size > 1:
+        sampler = DistributedSampler(dataset, shuffle=False)
+    else:
+        sampler = InferenceSampler(len(dataset))
+        
     # logger.info("Start Computing Validation Loss on {} images".format(len(dataset)))
     # drop_last so the batch always have the same size
     batch_sampler = torch.utils.data.sampler.BatchSampler(sampler, batch_size, drop_last=False)
