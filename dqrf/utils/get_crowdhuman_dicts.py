@@ -47,8 +47,6 @@ class get_crowdhuman_dicts(object):
         for idx, ann in enumerate(imgs_anns):
             v = json.loads(ann)
             record = {}
-            if idx == 1171:
-                a =1 
             filename = v["ID"] + '.jpg'
             # NOTE when filename starts with '/', it is an absolute filename thus os.path.join doesn't work
             if filename.startswith('/'):

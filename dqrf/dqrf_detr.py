@@ -106,7 +106,8 @@ class DQRF_DETR(nn.Module):
         outputs_class = torch.stack(outputs_classes)
         outputs_coord = torch.stack(outputs_coords)
 
-        output = {'pred_logits': outputs_class, 'pred_boxes': outputs_coord, 'dec_attns': dec_attns, 'pos_center': pos_center[-1], 'queries': hs[-1]}
+        # output = {'pred_logits': outputs_class, 'pred_boxes': outputs_coord, 'dec_attns': dec_attns, 'pos_center': pos_center[-1], 'queries': hs[-1]}
+        output = {'pred_logits': outputs_class[-1], 'pred_boxes': outputs_coord[-1], 'dec_attns': dec_attns, 'pos_center': pos_center[-1], 'queries': hs[-1]}
         if self.training:
             if self.aux_loss:
                 output['aux_outputs'] = self._set_aux_loss(outputs_class, outputs_coord, pos_center, hs)
