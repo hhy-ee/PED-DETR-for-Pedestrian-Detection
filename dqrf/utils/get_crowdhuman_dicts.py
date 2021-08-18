@@ -48,35 +48,33 @@ class get_crowdhuman_dicts(object):
             v = json.loads(ann)
             record = {}
 
-            filename = v["ID"]
+            filename = v["filename"]
             # NOTE when filename starts with '/', it is an absolute filename thus os.path.join doesn't work
             if filename.startswith('/'):
                 filename = os.path.normpath(self.image_root + filename)
             else:
-                filename = os.path.join(self.image_root, filename) + '.jpg'
-            # height, width = v["image_height"], v["image_width"]
+                filename = os.path.join(self.image_root, filename)
+            height, width = v["image_height"], v["image_width"]
 
             record["file_name"] = filename
             record["image_id"] = idx
-            # record["height"] = height
-            # record["width"] = width
+            record["height"] = height
+            record["width"] = width
 
             objs = []
-            for anno in v.get('gtboxes', []):
-                x1, y1, x2, y2 = anno['fbox']
+            for anno in v.get('instances', []):
+                x1, y1, x2, y2 = anno['bbox']
                 w = x2 - x1
                 h = y2 - y1
-                is_ignored = anno['head_attr'].get('ignore', False) == 1
-                if anno['tag'] == 'person':
-                    obj = {
-                        "category_id": 1,
-                        "bbox": anno['fbox'],
-                        "vbbox": anno['vbox'],
-                        "is_ignored": is_ignored,
-                        'area': w * h,
-                        # 'bbox_mode': BoxMode.XYXY_ABS
-                    }
-                    objs.append(obj)
+                obj = {
+                    "category_id": anno['label'],
+                    "bbox": anno['bbox'],
+                    "vbbox": anno['vbbox'],
+                    "is_ignored": anno.get('is_ignored', False),
+                    'area': w * h,
+                    # 'bbox_mode': BoxMode.XYXY_ABS
+                }
+                objs.append(obj)
             # ratio = 1.0 * (height + 1) / (width + 1) # do something with ratio ?
             record["annotations"] = objs
             # dataset_dicts.append(record) # to print class histogram

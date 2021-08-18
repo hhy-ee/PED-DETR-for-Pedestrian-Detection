@@ -17,10 +17,10 @@ def add_dataset_path(cfg):
 
     _C.CH_PATH = CN()
 
-    _C.CH_PATH.ANNOT_PATH_TRAIN = "datasets/crowdhuman/annotations/annotation_val.odgt"
-    _C.CH_PATH.IMG_PATH_TRAIN = "datasets/crowdhuman/images/train"
-    _C.CH_PATH.ANNOT_PATH_VAL = "datasets/crowdhuman/annotations/annotation_val.odgt"
-    _C.CH_PATH.IMG_PATH_VAL = "datasets/crowdhuman/images/val"
+    _C.CH_PATH.ANNOT_PATH_TRAIN = "PATH/CrowdHuman_train.json"
+    _C.CH_PATH.IMG_PATH_TRAIN = "PATH/train2017"
+    _C.CH_PATH.ANNOT_PATH_VAL = "PATH/CrowdHuman_val.json"
+    _C.CH_PATH.IMG_PATH_VAL = "PATH/val2017"
 
 def add_dqrf_config(cfg):
     """
