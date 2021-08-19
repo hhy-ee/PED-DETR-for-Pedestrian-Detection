@@ -22,7 +22,7 @@ from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.samplers import InferenceSampler
 from detectron2.data.dataset_mapper import DatasetMapper
 import detectron2.utils.comm as comm
-
+from detectron2.data.samplers import TrainingSampler
 
 class ValidationLoss(HookBase):
     def __init__(self, cfg, model, weight_dict):
@@ -111,7 +111,7 @@ class ValidationLoss_2(HookBase): # faster than ValidationLoss
         self._logger = logging.getLogger(self._logger_name)
 
     def _do_eval_loss(self):
-        total = len(self._data_loader)
+        total = len(self._data_loader.dataset)
         with torch.no_grad():
             for idx, inputs in enumerate(self._data_loader):
                 loss_dict = self._model(inputs)
@@ -229,11 +229,13 @@ def build_detection_val_loader(cfg, dataset_name, total_batch_size,  mapper=None
         mapper = DatasetMapper(cfg, True)
     dataset = MapDataset(dataset, mapper)
 
-    if world_size > 1:
-        sampler = DistributedSampler(dataset, shuffle=False)
-    else:
-        sampler = InferenceSampler(len(dataset))
-        
+    # if world_size > 1:
+    #     sampler = DistributedSampler(dataset, shuffle=False)
+    # else:
+    #     sampler = InferenceSampler(len(dataset))
+    
+    sampler = TrainingSampler(len(dataset))
+
     # logger.info("Start Computing Validation Loss on {} images".format(len(dataset)))
     # drop_last so the batch always have the same size
     batch_sampler = torch.utils.data.sampler.BatchSampler(sampler, batch_size, drop_last=False)
