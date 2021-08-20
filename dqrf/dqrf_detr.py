@@ -201,19 +201,22 @@ class DQRF_DETR(nn.Module):
         # For each box we assign the best class or the second best if the best on is `no_object`.
         prob = box_cls.sigmoid()
         scores = prob#.squeeze(-1) # [bs, num_query, 1]
-        labels = torch.ones_like(scores, dtype=torch.int64, device=scores.device)#.squeeze(-1) # [bs, num_query, 1]
+        labels = torch.zeros_like(scores, dtype=torch.int64, device=scores.device)#.squeeze(-1) # [bs, num_query, 1]
         box_pred = box_cxcywh_to_xyxy(box_pred)
         img_h, img_w = image_sizes.unbind(1)
         scale_fct = torch.stack([img_w, img_h, img_w, img_h], dim=1)
         box_pred = box_pred * scale_fct[:, None, :]
 
+        # new edited
+        image_sizes = [tuple(image_size.detach().cpu().numpy()) for image_size in image_sizes]
+
         for i, (scores_per_image, labels_per_image, box_pred_per_image, image_size) in enumerate(zip(scores, labels, box_pred, image_sizes)):
             result = Instances(image_size)
-            result.pred_boxes = box_pred_per_image
+            result.pred_boxes = Boxes(box_pred_per_image)
             # result.pred_boxes = Boxes(box_pred_per_image)
             # result.pred_boxes.scale(scale_x=image_size[1], scale_y=image_size[0])
-            result.scores = scores_per_image
-            result.pred_classes = labels_per_image
+            result.scores = scores_per_image[:, 0]
+            result.pred_classes = labels_per_image[:, 0]
             results.append({"instances": result})
             # results.append(result)
         return results

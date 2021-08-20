@@ -158,28 +158,7 @@ class ValidationLoss_2(HookBase): # faster than ValidationLoss
                                         n=5,
                                         name=self._logger_name
                                         )
-                    # log_every_n_seconds(logging.INFO,
-                    #                     msg=" iter: {iter}/{total}  val_loss:{total_loss}   {losses}  {memory}".format(
-                    #                         iter=idx + 1,
-                    #                         total=total,
-                    #                         total_loss='{:.3f}'.format(total_losses_reduced),
-                    #                         losses="  ".join(
-                    #                             [
-                    #                                 "{}: {:.3f}".format(k.split('val_loss_')[-1], v)
-                    #                                 for k, v in metrics_dict.items()
-                    #
-                    #                             ]
-                    #                         ),
-                    #                         memory="max_mem: {:.0f}M".format(
-                    #                             max_mem_mb) if max_mem_mb is not None else ""
-                    #
-                    #                     ),
-                    #                     n=5,
-                    #                     name=self._logger_name
-                    #                     )
 
-
-        # comm.synchronize()
     def after_step(self):
         next_iter = self.trainer.iter + 1
         is_final = next_iter == self.trainer.max_iter
@@ -234,7 +213,7 @@ def build_detection_val_loader(cfg, dataset_name, total_batch_size,  mapper=None
     # else:
     #     sampler = InferenceSampler(len(dataset))
     
-    sampler = TrainingSampler(len(dataset))
+    sampler = InferenceSampler(len(dataset))
 
     # logger.info("Start Computing Validation Loss on {} images".format(len(dataset)))
     # drop_last so the batch always have the same size

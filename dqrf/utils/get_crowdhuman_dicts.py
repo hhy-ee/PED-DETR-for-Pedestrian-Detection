@@ -70,7 +70,7 @@ class get_crowdhuman_dicts(object):
                 vy2 = vy1 + vh
                 fbox = [fx1, fy1, fx2, fy2]
                 vbox = [vx1, vy1, vx2, vy2]
-                is_ignored = anno['head_attr'].get('ignore', False) == 1
+                is_ignored = anno['head_attr'].get('ignore', True) == 1
                 
                 if anno['tag'] == 'person':
                     obj = {

@@ -10,6 +10,7 @@ import json
 import numpy as np
 from collections import Counter, OrderedDict
 from dqrf.utils.box_ops import calIof, calIoU
+from dqrf.utils.utils import FileSystemPILReader
 import os
 import copy
 from scipy import interpolate
@@ -68,9 +69,9 @@ class mMR_FPPI_evaluator(object):
         self.watch_scale = watch_scale
         self.class_names = class_names
         self.gt_dir = gt_dir
+        self.image_read = FileSystemPILReader()
         self._load_gts(json_file)
-
-
+        
     def _load_gts(self, json_file):
         """
         :param json_file:
@@ -95,7 +96,7 @@ class mMR_FPPI_evaluator(object):
                 json_dict = json.loads(line)
                 # filename = json_dict['image_id']
                 # try:
-                filename = json_dict['filename']
+                filename = json_dict['ID'] + '.jpg'
                 # except Exception:
                 #     print(json_dict)
 
@@ -103,15 +104,15 @@ class mMR_FPPI_evaluator(object):
                     filename = os.path.normpath(self.gt_dir + filename)
                 else:
                     filename = os.path.join(self.gt_dir, filename)
+                
+                image_width, image_height  = self.image_read(filename).size
 
-                image_height = json_dict['image_height']
-                image_width = json_dict['image_width']
                 self.gts['image_scale'][filename] = get_scale_factor(self.min_size, self.max_size,image_height, image_width) if self.gt_rescale else 1.0
                 self.gts['image_num'] += 1
 
-                for instance in json_dict.get('instances', []): # for each instance in that img
+                for instance in json_dict.get('gtboxes', []): # for each instance in that img
                     instance['detected'] = False
-                    label = instance.get('label', None)
+                    label = 1 if instance['tag'] == 'person' else 0
                     # create a new reference (box_by_label) to a  gts[label] and set it equal to {}
                     box_by_label = self.gts.setdefault(label, {})
                     box_by_img = box_by_label.setdefault(filename, {'gts': []})
@@ -121,12 +122,12 @@ class mMR_FPPI_evaluator(object):
 
                     #we don't evaluate on GTs with their center out of the pic as DETR's predictiong
                     #uses a sigmoid function
-                    x1, y1, x2, y2 = instance['bbox']
-                    cx, cy = (x1 + x2) / 2.0, (y1 + y2) / 2.0
+                    x1, y1, w, h = instance['fbox']
+                    cx, cy = x1 + w / 2.0, y1 + h / 2.0
                     cignore = cx < 0 or cx > image_width or cy < 0 or cy > image_height
 
                     # if not instance.get('is_ignored', False):
-                    if not (instance.get('is_ignored', False) or cignore):
+                    if not (instance['head_attr'].get('ignore', True) or cignore):
                         gt_by_img.append(instance)
                         self.gts['gt_num'][label] += 1
                         necessity = instance.get('necessity', None)

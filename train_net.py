@@ -9,7 +9,7 @@
 import contextlib
 import logging
 import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import time
 from typing import Any, Dict, List, Set
 import numpy as np
@@ -33,8 +33,11 @@ from detectron2.utils.events import get_event_storage, JSONWriter, TensorboardXW
 
 from dqrf import add_dqrf_config, add_dataset_path
 from dqrf.utils.get_crowdhuman_dicts import get_crowdhuman_dicts
+from dqrf.utils.get_crowdhuman_val_dicts import get_crowdhuman_val_dicts
 from dqrf.utils.dataset_mapper import DqrfDatasetMapper, CH_DqrfDatasetMapper
-from dqrf.utils.ch_evalutor import CrowdHumanEvaluator
+
+from dqrf.utils.new_ch_evalutor import CrowdHumanEvaluator
+
 from dqrf.utils.validation_set import ValidationLoss, ValidationLoss_2, build_detection_val_loader
 from dqrf.utils.metric_writer import TrainingMetricPrinter, PeriodicWriter_withInitLoss
 try:
@@ -82,15 +85,15 @@ class Trainer(DefaultTrainer):
         hooks = super().build_hooks()
 
 
-        hooks.insert(-2, ValidationLoss_2(
-            self.cfg,
-            self._trainer.model,
-            build_detection_val_loader(
-                self.cfg,
-                self.cfg.DATASETS.TEST[0],
-                self.cfg.SOLVER.IMS_PER_BATCH,
-                mapper=self._return_val_mapper()),
-            self.weight_dict))  # insert before writer and eval hook
+        # hooks.insert(-2, ValidationLoss_2(
+        #     self.cfg,
+        #     self._trainer.model,
+        #     build_detection_val_loader(
+        #         self.cfg,
+        #         self.cfg.DATASETS.TEST[0],
+        #         self.cfg.SOLVER.IMS_PER_BATCH,
+        #         mapper=self._return_val_mapper()),
+        #     self.weight_dict))  # insert before writer and eval hook
 
         # if comm.is_main_process():
             # Here the default print/log frequency of each writer is used.
@@ -218,7 +221,7 @@ class Trainer(DefaultTrainer):
             mapper = CH_DqrfDatasetMapper(cfg, False)
         else:
             mapper = None
-        return build_detection_test_loader(cfg, dataset_name, mapper=mapper)
+        return build_detection_test_loader(cfg, dataset_name)
 
     @classmethod
     def build_train_loader(cls, cfg):
@@ -293,13 +296,15 @@ def setup(args):
     if "crowd" in cfg.DATASETS.TRAIN[0]:
         add_dataset_path(cfg)
         ch_train = get_crowdhuman_dicts(cfg.CH_PATH.ANNOT_PATH_TRAIN, cfg.CH_PATH.IMG_PATH_TRAIN)
-        ch_val = get_crowdhuman_dicts(cfg.CH_PATH.ANNOT_PATH_VAL, cfg.CH_PATH.IMG_PATH_VAL)
+        ch_test = get_crowdhuman_val_dicts(cfg.CH_PATH.ANNOT_PATH_VAL, cfg.CH_PATH.IMG_PATH_VAL)
         DatasetCatalog.register(cfg.DATASETS.TRAIN[0], ch_train)
-        MetadataCatalog.get(cfg.DATASETS.TRAIN[0]).set(thing_classes=["Background", "person"])
-        DatasetCatalog.register(cfg.DATASETS.TEST[0], ch_val)
-        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["Background", "person"])
-        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(json_file=cfg.CH_PATH.ANNOT_PATH_VAL)
+        DatasetCatalog.register(cfg.DATASETS.TEST[0], ch_test)
+        
         MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(gt_dir=cfg.CH_PATH.IMG_PATH_VAL)
+        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(json_file=cfg.CH_PATH.ANNOT_PATH_VAL)
+        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(gt_json_file=cfg.CH_PATH.GT_ANNOT_PATH_VAL)
+        MetadataCatalog.get(cfg.DATASETS.TEST[0]).set(thing_classes=["ped", "ign"])
+
     cfg.freeze()
     default_setup(cfg, args)
     return cfg
@@ -323,8 +328,7 @@ if __name__ == "__main__":
 
     args = default_argument_parser().parse_args()
     args.dist_url = 'tcp://127.0.0.1:50151'
-    # args.num_gpus = 2
-    # args.config_file = 'configs/deform_detr.yaml'
+    args.config_file = 'configs/deform_detr.yaml'
 
     print("Command Line Args:", args)
     """

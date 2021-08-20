@@ -20,7 +20,9 @@ def add_dataset_path(cfg):
     _C.CH_PATH.ANNOT_PATH_TRAIN = "datasets/crowdhuman/annotations/annotation_train.odgt"
     _C.CH_PATH.IMG_PATH_TRAIN = "datasets/crowdhuman/images/train"
     _C.CH_PATH.ANNOT_PATH_VAL = "datasets/crowdhuman/annotations/annotation_val.odgt"
+    _C.CH_PATH.GT_ANNOT_PATH_VAL = ['datasets/crowdhuman/annotations/val_gt.json']
     _C.CH_PATH.IMG_PATH_VAL = "datasets/crowdhuman/images/val"
+    
 
 def add_dqrf_config(cfg):
     """
