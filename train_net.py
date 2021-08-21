@@ -329,6 +329,7 @@ if __name__ == "__main__":
     args = default_argument_parser().parse_args()
     args.dist_url = 'tcp://127.0.0.1:50151'
     # args.config_file = 'configs/deform_detr.yaml'
+    # args.resume = True
 
     print("Command Line Args:", args)
     """

@@ -312,7 +312,7 @@ class RandomSelect(object):
 
 class ToTensor(object):
     def __call__(self, img, target):
-        return F.to_tensor(img), target
+        return F.to_tensor(img)*255, target
 
 
 class RandomErasing(object):

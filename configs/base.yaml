@@ -2,8 +2,8 @@ MODEL:
   DEVICE: "cuda"
   META_ARCHITECTURE: "DQRF_DETR"
   WEIGHTS: "./datasets/pretrain_model/R-50.pkl"
-  PIXEL_MEAN: [123.675, 116.280, 103.530]
-  PIXEL_STD: [58.395, 57.120, 57.375] #[1.0, 1.0, 1.0] #std has been absorbed into its conv1 weights, so the std needs to be set 1. (for MSRA models, but we are using pytorch pretraining)
+  PIXEL_MEAN: [123.675, 116.28, 103.53]
+  PIXEL_STD: [1.0, 1.0, 1.0] #[1.0, 1.0, 1.0] #std has been absorbed into its conv1 weights, so the std needs to be set 1. (for MSRA models, but we are using pytorch pretraining)
   BACKBONE:
     FREEZE_AT: 2 # FREEZE STEM + block 1
     NAME: "build_resnet_backbone"
