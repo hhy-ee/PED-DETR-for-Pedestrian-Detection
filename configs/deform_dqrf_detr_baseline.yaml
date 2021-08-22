@@ -1,0 +1,10 @@
+_BASE_: "base.yaml"
+MODEL:
+  DQRF_DETR:
+    AUX_LOSS: False
+    NUM_CLASSES: 1
+    NUM_QUERIES: 1000
+    DENSE_QUERY: True
+    RECTIFIED_ATTENTION: True
+
+OUTPUT_DIR: "./datasets/train_model/crowdhuman/deform_dqrf_detr_baseline"

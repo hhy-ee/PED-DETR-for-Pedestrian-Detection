@@ -9,7 +9,7 @@
 import contextlib
 import logging
 import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import time
 from typing import Any, Dict, List, Set
 import numpy as np
@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
     args = default_argument_parser().parse_args()
     args.dist_url = 'tcp://127.0.0.1:50151'
-    # args.config_file = 'configs/deform_detr.yaml'
+    args.config_file = 'configs/deform_dqrf_detr_baseline.yaml'
     # args.resume = True
 
     print("Command Line Args:", args)
